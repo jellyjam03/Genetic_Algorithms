@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 #include <iomanip>
+#include <chrono>
 
 constexpr double M_PI = 3.14159265358979323846;
 constexpr double SMALLEST_INCREMENT = 1e-5;
@@ -127,7 +128,7 @@ void euristicGlobalMinimum(Function func, int dimensions, double rangeStart, dou
     for (double elem : bestX) {
         std::cout << elem << ", ";
     }
-    std::cout << "\b\b}\n\n";
+    std::cout << "\b\b} using the euristic method\n\n";
 }
 
 void deterministicGlobalMinimum(Function func, int dimensions, double rangeStart, double rangeEnd) {
@@ -165,10 +166,14 @@ void deterministicGlobalMinimum(Function func, int dimensions, double rangeStart
     for (double elem : bestX) {
         std::cout << elem << ", ";
     }
-    std::cout << "\b\b}\n\n";
+    std::cout << "\b\b} using the deterministic method\n\n";
 }
 
 int main() {
     std::cout << std::fixed << std::setprecision(5);
-    deterministicGlobalMinimum(Function(customFunc, "custom function"), 2, 0, 1);
+    using namespace std::chrono;
+    auto start = high_resolution_clock::now();
+    euristicGlobalMinimum(Function(customFunc, "custom function"), 10, 0, 1);
+    auto stop = high_resolution_clock::now();
+    std::cout << "Function runtime was: " << duration_cast<seconds>(stop - start).count() << " seconds\n";
 }
