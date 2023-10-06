@@ -12,7 +12,7 @@ constexpr double SMALLEST_INCREMENT = 1e-5;
 
 double michalewicz(const std::vector<double>& x) {
     auto michalewicz1Dim = [](double x, int i) -> double {
-        return sin(x) * std::pow(sin(x * x) * (i + 1) / M_PI, 20);
+        return sin(x) * std::pow(sin((x * x) * (i + 1) / M_PI), 20);
     };
 
     double sum = 0;
