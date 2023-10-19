@@ -1,387 +1,235 @@
-﻿#include <iostream>
-#include <functional>
-#include <cmath>
-#include <numeric>
-#include <vector>
-#include <random>
-#include <iomanip>
-#include <chrono>
-#include <fstream>
-#include <future>
-#include <bitset>
-#include <array>
-#include <numbers>
-#include <cstddef>
-#include <iomanip>
 #include <iostream>
-#include <memory>
-#include <utility>
-#include <string_view>
+#include <math.h>
+#include <cstring>
+#include <iomanip>
+#include <random>
+#include <time.h>
+#define MAX 100
 
-static constexpr double epsilon = 1e-5;
+using namespace std;
 
-struct FunctionData {
-	double rangeStart, rangeEnd, range;
-	unsigned valueBitLength, numbersRepresented;
+//Other (1/2)
+int log2Superior(const long double& x);
 
-	constexpr FunctionData(double rangeStart_, double rangeEnd_) :
-		rangeStart(rangeStart_), rangeEnd(rangeEnd_),
-		range(rangeEnd_ - rangeStart_), valueBitLength(ceilLog2(unsigned(range / epsilon))), 
-		numbersRepresented(cpow2(valueBitLength)) {}
+class point {
+    public:
+    bool* bit_form;
+    long double* real_form;
+    int nrBiti, length, dim;
 
-private:
-	constexpr unsigned ceilLog2(unsigned n) const {
-		if (n < 2) {
-			return n;
-		}
-		return 1 + ceilLog2(n / 2);
-	}
+    point() : bit_form(NULL), real_form(NULL), nrBiti(0), length(0), dim(0) {}
+    point(const point& x) {
+        bit_form = new bool[x.length];
+        real_form = new long double[x.length/x.nrBiti];
+        nrBiti = x.nrBiti;
+        length = x.length;
+        dim = x.dim;
 
-	constexpr unsigned cpow2(const unsigned pow) const {
-		if (pow == 0) {
-			return 1;
-		}
-		if (pow == 1) {
-			return 2;
-		}
-		unsigned val = cpow2(pow / 2);
-		if (pow % 2 == 1) {
-			return val * val * 2;
-		}
-		return val * val;
-	}
+        memcpy(this->bit_form, x.bit_form, length);
+        memcpy(this->real_form, x.real_form, length/nrBiti * sizeof(long double));
+    }
+
+    /*point(point&& x) {
+        bit_form = x.bit_form;
+        real_form = x.real_form;
+        length = x.length;
+        nrBiti = x.nrBiti;
+
+        x.bit_form = NULL;
+        x.real_form = NULL;
+        x.nrBiti = x.length = 0;
+    }*/
+
+    ~point() {
+        if (bit_form != NULL) delete[] bit_form; 
+        if (real_form != NULL) delete[] real_form;
+
+        bit_form = NULL;
+        real_form = NULL;
+        length = nrBiti = dim = 0;
+    }
+
+    void copy(const point& x) {
+        if (bit_form != NULL) delete bit_form;
+        if (real_form != NULL) delete real_form;
+
+        bit_form = new bool[x.length];
+        real_form = new long double[x.length/x.nrBiti];
+
+        memcpy(bit_form, x.bit_form, x.length);
+        memcpy(real_form, x.real_form, (x.length/x.nrBiti) * sizeof(long double));
+
+        length = x.length;
+        nrBiti = x.nrBiti;
+        dim = x.dim;
+    }
+
+    void Initialise(const long double& a, const long double& b, const long double& epsilon, const int& dimensions) {
+        real_form = new long double[dimensions];
+        nrBiti = log2Superior((b-a)/epsilon);
+        length = nrBiti * dimensions;
+        dim = dimensions;
+        bit_form = new bool[nrBiti*dimensions];
+    }
+
+    void UpdateReal(const long double& a, const long double& b) {
+        unsigned long long int xDecimal;
+
+        for (int i = 0; i < length; i += nrBiti) {
+            xDecimal = 0;
+            for (int j = i; j - i < nrBiti; j++) {
+                xDecimal *= 2;
+                xDecimal += bit_form[j];
+            }
+            real_form[i/nrBiti] = a + xDecimal * (b - a)/((1<<nrBiti) - 1);
+        }
+    }
 };
 
-template<size_t N, double rangeStart = -5.12, double rangeEnd = 5.12 + epsilon>
-double deJong(const std::array<bool, N>& xBits) {
-	constexpr FunctionData fd(rangeStart, rangeEnd);
-	if (N % fd.valueBitLength != 0) {
-		throw std::invalid_argument("Bad length of bitset");
-	}
-	constexpr size_t xLen = N / fd.valueBitLength;
-	double sum = 0;
-	for (size_t i = 0; i <= N - fd.valueBitLength; i += fd.valueBitLength) {
-		int xPosition = 0;
-		for (size_t j = 1; j <= fd.valueBitLength; ++j) {
-			xPosition *= 2;
-			xPosition += xBits[i + fd.valueBitLength - j];
-		}
-		double x = xPosition * fd.range / fd.numbersRepresented + rangeStart;
-		sum += x * x;
-	}
-	return sum;
-}
+//functions
+long double Dejong(const point& x);
+long double Schwefel(const point& x);
+long double Rastrigin(const point& x);
+long double Michalewicz(const point& x);
 
-template<size_t N, double rangeStart = -500., double rangeEnd = 500 + epsilon>
-double schwefel(const std::array<bool, N>& xBits) {
-	constexpr FunctionData fd(rangeStart, rangeEnd);
-	if (N % fd.valueBitLength != 0) {
-		throw std::invalid_argument("Bad length of bitset");
-	}
-	constexpr size_t xLen = N / fd.valueBitLength;
-	double sum = 0;
-	for (size_t i = 0; i <= N - fd.valueBitLength; i += fd.valueBitLength) {
-		int xPosition = 0;
-		for (size_t j = 1; j <= fd.valueBitLength; ++j) {
-			xPosition *= 2;
-			xPosition += xBits[i + fd.valueBitLength - j];
-		}
-		double x = xPosition * fd.range / fd.numbersRepresented + rangeStart;
-		sum += -x * sin(sqrt(abs(x)));
-	}
-	return sum;
-}
+//Neighbour selection
+void BestImprovement(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x));
 
-template<size_t N, double rangeStart = -5.12, double rangeEnd = 5.12 + epsilon>
-double rastrigin(const std::array<bool, N>& xBits) {
-	constexpr FunctionData fd(rangeStart, rangeEnd);
-	if (N % fd.valueBitLength != 0) {
-		throw std::invalid_argument("Bad length of bitset");
-	}
-	constexpr size_t xLen = N / fd.valueBitLength;
-	double sum = 0;
-	for (size_t i = 0; i <= N - fd.valueBitLength; i += fd.valueBitLength) {
-		int xPosition = 0;
-		for (size_t j = 1; j <= fd.valueBitLength; ++j) {
-			xPosition *= 2;
-			xPosition += xBits[i + fd.valueBitLength - j];
-		}
-		double x = xPosition * fd.range / fd.numbersRepresented + rangeStart;
-		sum += x * x - 10 * cos(2 * std::numbers::pi * x);
-	}
-	return 10 * xLen + sum;
-}
+//RNG
+void randomCandidate(point& vc, const long double& a, const long double& b, const long double epsilon, const int& dimensions);
 
-template<size_t N, double rangeStart = 0., double rangeEnd = std::numbers::pi + epsilon>
-double michalewicz(const std::array<bool, N>& xBits) {
-	constexpr double rangeStart = 0, rangeEnd = std::numbers::pi + epsilon;
-	constexpr FunctionData fd(rangeStart, rangeEnd);
-	if (N % fd.valueBitLength != 0) {
-		throw std::invalid_argument("Bad length of bitset");
-	}
-	constexpr size_t xLen = N / fd.valueBitLength;
-	double sum = 0;
-	for (size_t i = 0, k = 1; i <= N - fd.valueBitLength; i += fd.valueBitLength, ++k) {
-		int xPosition = 0;
-		for (size_t j = 1; j <= fd.valueBitLength; ++j) {
-			xPosition *= 2;
-			xPosition += xBits[i + fd.valueBitLength - j];
-		}
-		double x = xPosition * fd.range / fd.numbersRepresented + rangeStart;
-		sum += sin(x) * std::pow((sin(k * x * x / std::numbers::pi)), 20) ;
-	}
-	return -sum;
-}
+//Hill Climbing
+long double hillClimbing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon,  void (*Improve)(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x)));
 
-struct GenericFunction {
-	GenericFunction(const std::string& name_, int dims_) : name(name_), dimensions(dims_) {}
-	std::string name;
-	int dimensions;
-	virtual ~GenericFunction() = 0 {}
-};
-
-template<size_t N>
-struct Function : GenericFunction {
-	Function(std::function<double(const std::array<bool, N>&)> func_, const std::string& name_, int dims_) :
-		func(func_), GenericFunction(name_, dims_) {}
-
-	std::function<double(const std::array<bool, N>&)> func;
-	virtual ~Function() = default;
-
-	double operator() (const std::array<bool, N>& bits) {
-		return func(bits);
-	}
-};
-
-
-template<unsigned DIMENSIONS>
-void addWithDimension(std::vector<std::unique_ptr<GenericFunction>>& funcs) {
-	constexpr FunctionData dejongFD = FunctionData(-5.12, 5.12 + epsilon),
-		schwefelFD = FunctionData(-500, 500 + epsilon),
-		rastriginFD = FunctionData(-5.12, 5.12 + epsilon),
-		michalewiczFD = FunctionData(0, std::numbers::pi + epsilon);
-	funcs.push_back(
-		std::make_unique<Function<dejongFD.valueBitLength * DIMENSIONS>>(deJong<dejongFD.valueBitLength * DIMENSIONS>, "De Jong's function", DIMENSIONS)
-	);
-	funcs.push_back(
-		std::make_unique<Function<schwefelFD.valueBitLength * DIMENSIONS>>(schwefel<schwefelFD.valueBitLength * DIMENSIONS>, "Schwefel's function", DIMENSIONS)
-	);
-	funcs.push_back(
-		std::make_unique<Function<rastriginFD.valueBitLength * DIMENSIONS>>(rastrigin<rastriginFD.valueBitLength * DIMENSIONS>, "Rastrigin's function", DIMENSIONS)
-	);
-	funcs.push_back(
-		std::make_unique<Function<michalewiczFD.valueBitLength * DIMENSIONS>>(michalewicz<michalewiczFD.valueBitLength * DIMENSIONS>, "Michalewicz's function", DIMENSIONS)
-	);
-	//std::cout << dejongFD.valueBitLength * DIMENSIONS << ",\n"
-	//	<< schwefelFD.valueBitLength * DIMENSIONS << ",\n"
-	//	<< rastriginFD.valueBitLength * DIMENSIONS << ",\n"
-	//	<< michalewiczFD.valueBitLength * DIMENSIONS << ",\n";
-}
-
-template<size_t N>
-double bestImprovement(std::array<bool, N> bits, Function<N>* eval) {
-	double bestValue = eval->operator()(bits);
-	while (true) {
-		double bestCurrent = bestValue;
-		size_t bestIndex = N;
-		for (size_t i = 0; i < N; ++i) {
-			std::array<bool, N> newBits = bits;
-			newBits[i] = !newBits[i];
-			double current = eval->operator()(newBits);
-			if (current < bestCurrent) {
-				bestIndex = i;
-				bestCurrent = current;
-			}
-		}
-		if (bestIndex == N) {
-			return bestValue;
-		}
-		bits[bestIndex] = !bits[bestIndex];
-		bestValue = bestCurrent;
-	}
-}
-
-template<size_t N>
-double firstImprovement(std::array<bool, N> bits, Function<N>* eval) {
-	double bestValue = eval->operator()(bits);
-	while (true) {
-		size_t bestIndex = N;
-		for (size_t i = 0; i < N; ++i) {
-			std::array<bool, N> newBits = bits;
-			newBits[i] = !newBits[i];
-			double current = eval->operator()(newBits);
-			if (current < bestValue) {
-				bestIndex = i;
-				bestValue = current;
-				break;
-			}
-		}
-		if (bestIndex == N) {
-			return bestValue;
-		}
-		bits[bestIndex] = !bits[bestIndex];
-	}
-}
-
-template<size_t N>
-double worstImprovement(std::array<bool, N> bits, Function<N>* eval) {
-	double bestValue = eval->operator()(bits);
-	while (true) {
-		double worstCurrent = DBL_MIN;
-		size_t bestIndex = N;
-		for (size_t i = 0; i < N; ++i) {
-			std::array<bool, N> newBits = bits;
-			newBits[i] = !newBits[i];
-			double current = eval->operator()(newBits);
-			if (worstCurrent < current && current < bestValue) {
-				bestIndex = i;
-				worstCurrent = current;
-			}
-		}
-		if (bestIndex == N) {
-			return bestValue;
-		}
-		bits[bestIndex] = !bits[bestIndex];
-		bestValue = worstCurrent;
-	}
-}
-
-template<size_t N>
-std::array<bool, N> random_bits(std::uniform_int_distribution<>& bitGenerator, std::mt19937& rng) {
-	std::array<bool, N> bits;
-	for (bool& bit : bits) {
-		bit = bitGenerator(rng);
-	}
-	return bits;
-}
-
-template<size_t N>
-using ImproveType = std::function<double(std::array<bool, N>, Function<N>*)>;
-
-template<size_t N>
-std::string hillClimbingWithType(Function<N>* func, ImproveType<N> improve) {
-	std::stringstream output;
-	output << std::fixed << std::setprecision(5);
-	std::chrono::steady_clock timer;
-	std::chrono::steady_clock::time_point begin = timer.now();
-	output << func->name << ',' << func->dimensions << ',';
-	std::random_device rd;
-	std::seed_seq sq = { rd(), rd(), rd(), rd() };
-	std::mt19937 rng(sq);
-	std::uniform_int_distribution<> bitGenerator{0, 1};
-	rng.discard(5000);
-	double resultValue = DBL_MAX;
-	constexpr int STEPS = 500;
-	for (int _ = 0; _ < STEPS; ++_) {
-		double bestValue = improve(random_bits<N>(bitGenerator, rng), func);
-		if (resultValue > bestValue) {
-			resultValue = bestValue;
-		}
-	}
-	output << resultValue << ',';
-	std::chrono::steady_clock::time_point end = timer.now();
-	output << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << ',';
-	return std::string(output.str());
-}
-
-template<size_t N>
-std::string simulatedAnnealing(Function<N>* func) {
-	std::stringstream output;
-	output << std::fixed << std::setprecision(5);
-	std::chrono::steady_clock timer;
-	std::chrono::steady_clock::time_point begin = timer.now();
-	output << func->name << ',' << func->dimensions << ',';
-	double temperature = 1;
-	std::random_device rd;
-	std::seed_seq sq = { rd(), rd(), rd(), rd() };
-	std::mt19937 rng(sq);
-	std::uniform_int_distribution<> bitGenerator{ 0, 1 };
-	std::uniform_real_distribution<> percentGenerator{ 0, 1 };
-	std::uniform_int_distribution<size_t> indexGenerator{ 0, N - 1 };
-	rng.discard(5000);
-	std::array<bool, N> bits = random_bits<N>(bitGenerator, rng);
-	double bestAnswer = DBL_MAX;
-	constexpr size_t MAX_ITER = N < 300 ? (size_t)5e5 : (size_t)2e6;
-	for (size_t iteration = 0; iteration < MAX_ITER; ++iteration) {
-		double currentAnswer = func->operator()(bits);
-		bestAnswer = std::min(bestAnswer, currentAnswer);
-		bool ok = true;
-		while (ok) {
-			size_t index = indexGenerator(rng);
-			bits[index] = !bits[index];
-			double newAnswer = func->operator()(bits);
-			if (newAnswer < currentAnswer || percentGenerator(rng) < std::pow(std::numbers::e, -std::abs(newAnswer - currentAnswer) / temperature)) {
-				currentAnswer = newAnswer;
-				bestAnswer = std::min(bestAnswer, currentAnswer);
-			}
-			else {
-				ok = false;
-				bits[index] = !bits[index]; // restore previous bit
-			}
-		}
-		temperature = (1 - (iteration + 1.) / MAX_ITER);
-	}
-	output << bestAnswer << ',';
-	std::chrono::steady_clock::time_point end = timer.now();
-	output << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << ',';
-	return output.str();
-}
-
-template<size_t N>
-std::optional<std::string> runWithDimension(GenericFunction* genFunc) {
-	if (auto func = dynamic_cast<Function<N>*>(genFunc)) {
-		std::string output;
-		output += hillClimbingWithType(func, (ImproveType<N>) bestImprovement<N>) + "Best improvement\n";
-		std::cout << "Function<" << N << "> finished best improvement" << std::endl;
-		output += hillClimbingWithType(func, (ImproveType<N>)firstImprovement<N>) + "First improvement\n";
-		std::cout << "Function<" << N << "> finished first improvement" << std::endl;
-		output += hillClimbingWithType(func, (ImproveType<N>)worstImprovement<N>) + "Worst improvement\n";
-		std::cout << "Function<" << N << "> finished worst improvement" << std::endl;
-		output += simulatedAnnealing(func) + "Simulated annealing\n";
-		std::cout << "Function<" << N << "> finished simulated annealing" << std::endl;
-		return std::optional<std::string>(output);
-	}
-	return std::nullopt;
-}
-
-
-std::string runAllTypes(GenericFunction* genFunc) {
-	// function bit requirements
-	constexpr size_t fbc[] = { 95, 100, 135, 190, 200, 270,570, 600, 810 };
-	if (auto output = runWithDimension<fbc[0]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[1]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[2]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[3]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[4]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[5]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[6]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[7]>(genFunc)) return output.value();
-	if (auto output = runWithDimension<fbc[8]>(genFunc)) return output.value();
-	return "Bad Function\n";
-}
+//Other (2/2)
+void CustomPrint(point& x, long double fx);
 
 int main() {
-	std::ofstream fout("H1_hillClimbing.csv", std::ios::app);
-	std::vector<std::unique_ptr<GenericFunction>> funcs;
-	addWithDimension<5>(funcs);
-	addWithDimension<10>(funcs);
-	addWithDimension<30>(funcs);
-	
-	constexpr int REPETITIONS = 10;
-	constexpr int PARALLEL_THREADS = 4;
-	auto threadRunner = [&fout, &funcs]() -> void {
-		for (const auto& genFuncPtr : funcs) {
-			fout << runAllTypes(genFuncPtr.get());
-		}
-	};
-	for (int _ = 0; _ < REPETITIONS; ++_) {
-		std::vector<std::future<void>> futures;
-		for (int _ = 0; _ < PARALLEL_THREADS - 1; ++_) {
-			futures.push_back(std::async(std::launch::async, threadRunner));
-		}
-		threadRunner();
-		for (auto& ft : futures) {
-			ft.get();
-		}
-	}
+    cout << setprecision(7) << fixed;
+    //cout<<hillClimbing(30, Dejong, -5.12, 5.12, 0.00001, BestImprovement)<<'\n';
+    cout<<hillClimbing(30, Schwefel, -500, 500, 0.00001, BestImprovement)<<'\n';
+    //cout<<hillClimbing(30, Rastrigin, -5.12, 5.12, 0.00001, BestImprovement)<<'\n';
+    //cout<<hillClimbing(5, Michalewicz, 0, M_PI, 0.00001, BestImprovement)<<'\n';
+    return 0;
+}
+
+long double hillClimbing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon,  void (*Improve)(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x))) {
+    int t = 0;
+    point best, vc, vn;
+    bool local;
+
+    randomCandidate(best, a, b, epsilon, dimensions);
+    do {
+        local = false;
+        randomCandidate(vc, a, b, epsilon, dimensions);
+        do {
+            Improve(vc, vn, a, b, function);
+            /*cout<<"\nFor VC:\n";
+            CustomPrint(vc, function(vc));
+            cout<<"For VN:\n";
+            CustomPrint(vn, function(vn));*/
+
+            if (function(vn) < function(vc)) {
+                vc.copy(vn);
+            }
+            else
+                local = true;
+            vn.~point();
+        }while(!local);
+        t++;
+        if (function(vc) < function(best))
+            best.copy(vc);
+
+        vc.~point();
+    }while(t < MAX);
+
+    return function(best);
+}
+
+int log2Superior(const long double& x) {
+    int rez = 0;
+    while (x > 1<<rez) rez++;
+    return rez;
+}
+
+long double Dejong(const point& x) {
+    int i;
+    long double sum = 0;
+    for (i = 0; i < x.dim; i++) {
+        sum = sum + x.real_form[i] * x.real_form[i];
+    }
+
+    return sum;
+}
+
+void randomCandidate(point& vc, const long double& a, const long double& b, const long double epsilon, const int& dimensions) {
+    mt19937 mt(random_device{}());
+    uniform_int_distribution coin{0, 1};
+
+    vc.Initialise(a, b, epsilon, dimensions);
+
+    for (int i = 0; i < vc.length; i++) {
+        vc.bit_form[i] = coin(mt);
+    }
+
+    vc.UpdateReal(a, b);
+}
+
+void BestImprovement(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x)) {
+    destination.copy(x);
+    point vn(x);
+    bool isInside;
+
+    for (int i = 0; i < x.length; i++) {
+        if (i > 0) vn.bit_form[i-1] = !vn.bit_form[i-1];
+        vn.bit_form[i] = !x.bit_form[i];
+        vn.UpdateReal(a, b);
+
+        isInside = true;
+        for (int i = 0; i < x.dim; i++)
+            if (x.real_form[i] < a || b < x.real_form[i])
+                isInside = false;
+        if (!isInside)
+            continue;
+
+        if (function(vn) < function(destination)) {
+            destination.copy(vn);
+        }
+    }
+}
+
+void CustomPrint(point& x, long double fx) {
+    cout<<"Coordinates: ";
+    for (int i = 0; i < x.dim; i++) cout<<x.real_form[i] << ' ';
+    cout<<"\nBit string: ";
+    for (int i = 0; i < x.length; i++) cout<<x.bit_form[i];
+    cout<<"\nValue: "<<fx<<'\n';
+
+}
+
+long double Schwefel(const point& x) {
+    long double sum = 0;
+    for (int i = 0; i < x.dim; i++) {
+        sum = sum - x.real_form[i]*sin(sqrt(abs(x.real_form[i])));
+    }
+
+    return sum;
+}
+
+long double Rastrigin(const point& x) {
+    long double sum = 10 * x.length/x.nrBiti;
+    for (int i = 0; i < x.dim; i++) {
+        sum = sum + x.real_form[i] * x.real_form[i] - 10 * cos(2*M_PI * x.real_form[i]);
+    }
+
+    return sum;
+}
+
+long double Michalewicz(const point& x) {
+    long double sum = 0;
+    
+    for (int i = 0; i < x.dim; i++) 
+        sum = sum + sin(x.real_form[i]) * pow(sin(i * pow(x.real_form[i], 2) / M_PI), 20);
+
+    return -sum;
 }
