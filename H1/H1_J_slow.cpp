@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <math.h>
 #include <cstring>
@@ -6,8 +7,8 @@
 #include <time.h>
 #define MAX_BIT_SIZE 1024
 #define MAX_RL_SIZE 256
-#define ITERATIONS 100
-#define ITERATIONS_ANN 10000
+#define ITERATIONS 10000//100 pt schwefel, 10000 pt rastrigin, 1 deJong, 1000 pt michalewicz
+#define ITERATIONS_ANN 100
 
 using namespace std;
 
@@ -15,15 +16,15 @@ using namespace std;
 int log2Superior(const long double& x);
 
 class point {
-    public:
+public:
     bool bit_form[MAX_BIT_SIZE];
     long double real_form[MAX_RL_SIZE];
     int nrBiti, length, dim;
 
-    point() : bit_form{0}, real_form{0}, nrBiti(0), length(0), dim(0) {}
+    point() : bit_form{ 0 }, real_form{ 0 }, nrBiti(0), length(0), dim(0) {}
 
     point(const long double& a, const long double& b, const long double& epsilon, const int& dimensions) {
-        nrBiti = log2Superior((b-a)/epsilon);
+        nrBiti = log2Superior((b - a) / epsilon);
         length = nrBiti * dimensions;
         dim = dimensions;
     }
@@ -55,7 +56,7 @@ class point {
                 xDecimal *= 2;
                 xDecimal += bit_form[j];
             }
-            real_form[i/nrBiti] = a + xDecimal * (b - a)/((1<<nrBiti) - 1);
+            real_form[i / nrBiti] = a + xDecimal * (b - a) / ((1 << nrBiti) - 1);
         }
     }
 };
@@ -73,13 +74,13 @@ void FirstImprovement(const point& x, point& destination, const int& a, const in
 
 //RNG
 mt19937 mt(random_device{}());
-uniform_int_distribution coin{0, 1};
+uniform_int_distribution coin{ 0, 1 };
 uniform_real_distribution<long double> distribution(0.0, 1.0);
 void randomCandidate(point& vc, const long double& a, const long double& b, const long double epsilon, const int& dimensions);
 void SelectRandomNeighbour(const point& x, point& destination, const long double& a, const long double& b);
 
 //Hill Climbing
-long double hillClimbing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon,  void (*Improve)(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x)));
+long double hillClimbing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon, void (*Improve)(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x)));
 
 //Simulated Annealing
 long double simulatedAnnealing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon);
@@ -91,18 +92,18 @@ long double modul(const long double& x);
 
 int main() {
     cout << setprecision(7) << fixed;
-    //cout<<hillClimbing(30, Dejong, -5.12, 5.12, 0.00001, WorstImprovement)<<'\n';
-    cout<<hillClimbing(30, Schwefel, -500, 500, 0.00001, BestImprovement)<<'\n';
-    //cout<<hillClimbing(30, Rastrigin, -5.12, 5.12, 0.00001, FirstImprovement)<<'\n';
+    //cout<<hillClimbing(30, Dejong, -5.12, 5.12, 0.00001, BestImprovement)<<'\n';
+    //cout << hillClimbing(30, Schwefel, -500, 500, 0.00001, BestImprovement) << '\n';
+    //cout<<hillClimbing(30, Rastrigin, -5.12, 5.12, 0.00001, BestImprovement)<<'\n';
     //cout<<hillClimbing(30, Michalewicz, 0, M_PI, 0.00001, BestImprovement)<<'\n';
     //cout<<simulatedAnnealing(30, Dejong, -5.12, 5.12, 0.00001)<<'\n';
-    //cout<<simulatedAnnealing(30, Schwefel, -500, 500, 0.00001)<<'\n';
+    cout<<simulatedAnnealing(30, Schwefel, -500, 500, 0.00001)<<'\n';
     //cout<<simulatedAnnealing(30, Rastrigin, -5.12, 5.12, 0.00001)<<'\n';
     //cout<<simulatedAnnealing(30, Michalewicz, 0, M_PI, 0.00001)<<'\n';
     return 0;
 }
 
-long double hillClimbing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon,  void (*Improve)(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x))) {
+long double hillClimbing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon, void (*Improve)(const point& x, point& destination, const int& a, const int& b, long double (*function)(const point& x))) {
     int t = 0;
     point best(a, b, epsilon, dimensions), vc(a, b, epsilon, dimensions), vn(a, b, epsilon, dimensions);
     bool local;
@@ -118,35 +119,35 @@ long double hillClimbing(const int& dimensions, long double (*function)(const po
             }
             else
                 local = true;
-        }while(!local);
+        } while (!local);
         t++;
         if (function(vc) < function(best))
             best.copy(vc);
-    }while(t < ITERATIONS);
+    } while (t < ITERATIONS);
 
     return function(best);
 }
 
 long double simulatedAnnealing(const int& dimensions, long double (*function)(const point& x), const long double& a, const long double& b, const long double& epsilon) {
     int t = 0, iterations = 0;
-    long double T = 1.0;
+    long double T = 10000.0;
     point vc(a, b, epsilon, dimensions), vn(a, b, epsilon, dimensions), best(a, b, epsilon, dimensions);
 
     randomCandidate(vc, a, b, epsilon, dimensions);
     best.copy(vc);
     do {
         do {
-            if (function(vc) < function(best)) 
+            if (function(vc) < function(best))
                 best.copy(vc);
 
             SelectRandomNeighbour(vc, vn, a, b);
-            if (function(vc) < function(vn))
-                vn.copy(vc);
-                else
+            if (function(vn) < function(vc))
+                vc.copy(vn);
+            else
                 if (distribution(mt) < exp(-modul(function(vn) - function(vc)) / T))
-                    vn.copy(vc);
+                    vc.copy(vn);
             iterations++;
-        } while (iterations < t*ITERATIONS_ANN);
+        } while (iterations < t * ITERATIONS_ANN);//faptul ca iteratiile de aici nu schimba cu mult outcome-ul
         t = t + 1;
         T = UpdateTemperature(T, t);
     } while (T > epsilon);
@@ -154,12 +155,13 @@ long double simulatedAnnealing(const int& dimensions, long double (*function)(co
 }
 
 long double UpdateTemperature(const long double& temperature, const int& iterr) {
-    return temperature * (1 - 0.01 * iterr);
+    //return temperature * (1 - 0.0001 * iterr);
+    return temperature * 0.999;//de mentionat diferenta la temperatura initiala + cooling relativ la iteratia curenta
 }
 
 int log2Superior(const long double& x) {
     int rez = 0;
-    while (x > 1<<rez) rez++;
+    while (x > 1 << rez) rez++;
     return rez;
 }
 
@@ -186,7 +188,7 @@ void randomCandidate(point& vc, const long double& a, const long double& b, cons
 }
 
 void SelectRandomNeighbour(const point& x, point& destination, const long double& a, const long double& b) {
-    uniform_int_distribution neighbours {0, x.length - 1};
+    uniform_int_distribution neighbours{ 0, x.length - 1 };
 
     int randPoz = neighbours(mt);
     destination.copy(x);
@@ -200,7 +202,7 @@ void BestImprovement(const point& x, point& destination, const int& a, const int
     bool isInside;
 
     for (int i = 0; i < x.length; i++) {
-        if (i > 0) vn.bit_form[i-1] = !vn.bit_form[i-1];
+        if (i > 0) vn.bit_form[i - 1] = !vn.bit_form[i - 1];
         vn.bit_form[i] = !x.bit_form[i];
         vn.UpdateReal(a, b);
 
@@ -223,7 +225,7 @@ void WorstImprovement(const point& x, point& destination, const int& a, const in
     bool isInside, improved = false;
 
     for (int i = 0; i < x.length; i++) {
-        if (i > 0) vn.bit_form[i-1] = !vn.bit_form[i-1];
+        if (i > 0) vn.bit_form[i - 1] = !vn.bit_form[i - 1];
         vn.bit_form[i] = !x.bit_form[i];
         vn.UpdateReal(a, b);
 
@@ -240,9 +242,9 @@ void WorstImprovement(const point& x, point& destination, const int& a, const in
                 improved = 1;
             }
             else
-            if (function(vn) > function(destination)) {
-                destination.copy(vn);
-            }
+                if (function(vn) > function(destination)) {
+                    destination.copy(vn);
+                }
     }
 }
 
@@ -252,7 +254,7 @@ void FirstImprovement(const point& x, point& destination, const int& a, const in
     bool isInside;
 
     for (int i = 0; i < x.length; i++) {
-        if (i > 0) vn.bit_form[i-1] = !vn.bit_form[i-1];
+        if (i > 0) vn.bit_form[i - 1] = !vn.bit_form[i - 1];
         vn.bit_form[i] = !x.bit_form[i];
         vn.UpdateReal(a, b);
 
@@ -271,27 +273,27 @@ void FirstImprovement(const point& x, point& destination, const int& a, const in
 }
 
 void CustomPrint(point& x, long double fx) {
-    cout<<"Coordinates: ";
-    for (int i = 0; i < x.dim; i++) cout<<x.real_form[i] << ' ';
-    cout<<"\nBit string: ";
-    for (int i = 0; i < x.length; i++) cout<<x.bit_form[i];
-    cout<<"\nValue: "<<fx<<'\n';
+    cout << "Coordinates: ";
+    for (int i = 0; i < x.dim; i++) cout << x.real_form[i] << ' ';
+    cout << "\nBit string: ";
+    for (int i = 0; i < x.length; i++) cout << x.bit_form[i];
+    cout << "\nValue: " << fx << '\n';
 
 }
 
 long double Schwefel(const point& x) {
     long double sum = 0;
     for (int i = 0; i < x.dim; i++) {
-        sum = sum - x.real_form[i]*sin(sqrt(abs(x.real_form[i])));
+        sum = sum - x.real_form[i] * sin(sqrt(abs(x.real_form[i])));
     }
 
     return sum;
 }
 
 long double Rastrigin(const point& x) {
-    long double sum = 10 * x.length/x.nrBiti;
+    long double sum = 10 * x.length / x.nrBiti;
     for (int i = 0; i < x.dim; i++) {
-        sum = sum + x.real_form[i] * x.real_form[i] - 10 * cos(2*M_PI * x.real_form[i]);
+        sum = sum + x.real_form[i] * x.real_form[i] - 10 * cos(2 * M_PI * x.real_form[i]);
     }
 
     return sum;
@@ -299,8 +301,8 @@ long double Rastrigin(const point& x) {
 
 long double Michalewicz(const point& x) {
     long double sum = 0;
-    
-    for (int i = 0; i < x.dim; i++) 
+
+    for (int i = 0; i < x.dim; i++)
         sum = sum + sin(x.real_form[i]) * pow(sin(i * pow(x.real_form[i], 2) / M_PI), 20);
 
     return -sum;
