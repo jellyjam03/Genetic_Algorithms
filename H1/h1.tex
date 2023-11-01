@@ -81,14 +81,13 @@ The Simulated Annealing was implemented using both a Geometric-Arithmetic and a 
 $$ \text{let } T \text{ be the current temperature}, T = a \cdot T + b, a = 0.99, b = \num{e-7}, T_0 = \num{e4} $$
 The stopping condition used was:
 $$ \text{if } T > \num{e-4}\colon\  \text{continue}, \text{ else stop} $$
-The probability that a worse neighbouring value will be chosen is: 
-$$p = \euler^{-|\frac{x_{\text{new}} - x_{\text{old}}}{T}|}$$
-Such an implementation will reach a cooled down state in $ k = 1844 $ steps.
 The second cooling method used was:
 $$ \text{let } T \text{ be the current temperature}, T = a \cdot T, a = 0.999, T_0 = \num{e4} $$
 The stopping condition for the second method was:
 $$ \text{if } T > \num{e-5}\colon\  \text{continue}, \text{ else stop} $$
-With the same probability formula of choosing a worse neighbouring value. Additionally, we have chosen to repeat the number of steps $i$ at each new temperature value, where $i$ represents the amount of times the temperature had already been changed. Thus, the algorithm did a total number of steps of $ \sum_{i = 1}^k i $, meaning $\approx \num{17e5} $.   
+The probability that a worse neighbouring value will be chosen is: 
+$$p = \euler^{-|\frac{x_{\text{new}} - x_{\text{old}}}{T}|}$$
+The Geometric Arithmetic implementation will reach a cooled down state in $ k = 1844 $ steps, while the Geometric one will reach a cooled state in $ k = 18412 $ steps. Additionally, for the first cooling method we have chosen to repeat the number of steps $i$ at each new temperature value, where $i$ represents the amount of times the temperature had already been changed. Thus, the algorithm did a total number of steps of $ \sum_{i = 1}^k i $, meaning $\approx \num{17e5} $. For the second cooling method, we have chosen to repeat the number of steps $i \cdot c$ at each new temperature value, where $i$ represents the amount of times the temperature had already been changed and $c$ is a constant $c = 100$. Thus, for the seconf cooling method the algorithm did a total number of steps of $ \sum_{i = 1}^k i \cdot c $, meaning $\approx \num{17e9} $.
 
 \section{Results}
 \subsection{5-dimensional results}
