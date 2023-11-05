@@ -87,212 +87,175 @@ The stopping condition for the second method was:
 $$ \text{if } T > \num{e-5}\colon\  \text{continue}, \text{ else stop} $$
 The probability that a worse neighbouring value will be chosen is: 
 $$p = \euler^{-|\frac{x_{\text{new}} - x_{\text{old}}}{T}|}$$
-The Geometric Arithmetic implementation will reach a cooled down state in $ k = 1844 $ steps, while the Geometric one will reach a cooled state in $ k = 18412 $ steps. Additionally, for the first cooling method we have chosen to repeat the number of steps $i$ at each new temperature value, where $i$ represents the amount of times the temperature had already been changed. Thus, the algorithm did a total number of steps of $ \sum_{i = 1}^k i $, meaning $\approx \num{17e5} $. For the second cooling method, we have chosen to repeat the number of steps $i \cdot c$ at each new temperature value, where $i$ represents the amount of times the temperature had already been changed and $c$ is a constant $c = 100$. Thus, for the seconf cooling method the algorithm did a total number of steps of $ \sum_{i = 1}^k i \cdot c $, meaning $\approx \num{17e9} $.
+The Geometric Arithmetic implementation will reach a cooled down state in $ k_1 = 1844 $ steps, while the Geometric one will reach a cooled state in $ k_2 = 18412 $ steps. Additionally, for the first cooling method we have chosen to repeat the number of steps $i$ at each new temperature value, where $i$ represents the amount of times the temperature had already been changed. Thus, the algorithm did a total number of steps of $ \sum_{i = 1}^{k_1} i $, meaning $\approx \num{17e5} $. For the second cooling method, we have chosen to repeat the number of steps for a constant 100 iterations every time the temperature cooled. Thus, for the second cooling method the algorithm did a total number of steps of $k_2 \cdot 100$, meaning $\approx 1841200 $ steps.
 
 \section{Results}
-\subsection{5-dimensional results}
+
+For simplicity, we will now establish some abreviations: Hill Climbing (HC), Simulated Annealing with Geometric Arithmetic cooling (SAGA), Simulated Annealing with Geometric cooling (SAG), Best Improvement(BI), Worst Improvement(WI), First Improvement Randomized (FIR) and First Improvement Non-randomized (FINR).
+
+\subsection{Dejong function}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 0.146 \\ \hline
-	Schwefel's & -2094.7919 & 0.0871 & 0.545 \\ \hline
-	Rastrigin's & 0.4975 & 0.5038 & 0.198 \\ \hline
-	Michalewicz's & -4.6869 & 0.0010 & 0.668 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & 0 & 0 & 0.146 \\ \hline
+		HC WI & 0 & 0 & 0.302 \\ \hline
+		HC FIR & 11.4351 & 2.9219 & 0.21 \\ \hline
+		HC FINR & 0 & 0 & 0.0936 \\ \hline
+		SAGA & 0 & 0 & 0.826 \\ \hline
+		SAG & 0 & 0 & 0.1543 \\ \hline
 \end{tabular}
-\caption{Best improvement applied on 5-dimensional functions}
+\caption{All algotithms applied on 5-dimensional Dejong function}
 \end{figure}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 1.0392 & 0.4349 & 0.067 \\ \hline
-	Schwefel's & -1642.8964 & 101.9519 & 0.120 \\ \hline
-	Rastrigin's & 14.1032 & 3.7678 & 0.070 \\ \hline
-	Michalewicz's & -3.4019 & 0.2426 & 0.092 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & 0 & 0 & 1 \\ \hline
+		HC WI & 0 & 0 & 2.01 \\ \hline
+		HC FIR & 1.0392 & 0.4349 & 0.067 \\ \hline
+		HC FINR & 0 & 0 & 0.4060 \\ \hline
+		SAGA & 0 & 0 & 1.37 \\ \hline
+		SAG & 0 & 0 & 0.1604 \\ \hline
 \end{tabular}
-\caption{Randomized first improvement applied on 5-dimensional functions}
+\caption{All algotithms applied on 10-dimensional Dejong function}
 \end{figure}
 
 \begin{figure}[H]
-    \begin{tabular}{|c||c|c|c|} \hline
-        Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-        De Jong's & 0 & 0 & 0.0936 \\ \hline
-        Schwefel's & -2070.35 & 28.9391 & 0.4296 \\ \hline
-        Rastrigin's & 0.9923 & 0.5286 & 0.1795 \\ \hline
-        Michalewicz's & -3.6987 & 0.0002 & 1.1049 \\ \hline
-    \end{tabular}
-    \caption{Non-randomized first improvement applied on 5-dimensional functions}
-    \end{figure}
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & 0 & 0 & 23.74 \\ \hline
+		HC WI & 0 & 0 & 47.83 \\ \hline
+		HC FIR & 114.0378 & 10.1385 & 1.62 \\ \hline
+		HC FINR & 0 & 0 & 6.7262 \\ \hline
+		SAGA & 0.0005 & 0 & 3.34 \\ \hline
+		SAG & 0.0001 & 0 & 0.2041 \\ \hline
+\end{tabular}
+\caption{All algotithms applied on 30-dimensional Dejong function}
+\end{figure}
+
+\subsection{Michalewicz function}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 0.302 \\ \hline
-	Schwefel's & -1394.9864 & 166.1433 & 0.663 \\ \hline
-	Rastrigin's & 1.7925 & 0.6293 & 1.285 \\ \hline
-	Michalewicz's & -2.7815 & 0.3264 & 0.017 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & -4.6869 & 0.0010 & 0.668 \\ \hline
+		HC WI & -2.7815 & 0.3264 & 0.017 \\ \hline
+		HC FIR & -3.4019 & 0.2426 & 0.092 \\ \hline
+		HC FINR & -3.6987 & 0.0002 & 1.1049 \\ \hline
+		SAGA & -4.6671 & 0.0178 & 1.248 \\ \hline
+		SAG & -3.6934 & 0.0058 & 1.2351 \\ \hline
 \end{tabular}
-\caption{Worst improvement applied on 5-dimensional functions}
+\caption{All algotithms applied on 5-dimensional Michalewicz function}
 \end{figure}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 0.826 \\ \hline
-	Schwefel's & -2094.3337 & 1.352 & 1.113 \\ \hline
-	Rastrigin's & 1.2143 & 0.6362 & 0.891 \\ \hline
-	Michalewicz's & -4.6671 & 0.0178 & 1.248 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & -9.3588 & 0.078 & 5.33 \\ \hline
+		HC WI & -4.129 & 0.3885 & 0.07 \\ \hline
+		HC FIR & -4.9379 & 0.3745 & 0.33 \\ \hline
+		HC FINR & -8.4160 & 0.0950 & 8.5899 \\ \hline
+		SAGA & -9.3482 & 0.1285 & 2.15 \\ \hline
+		SAG & -8.4426 & 0.1092 & 2.4652 \\ \hline
 \end{tabular}
-\caption{Simulated Annealing with GA cooling applied on 5-dimensional functions}
+\caption{All algotithms applied on 10-dimensional Michalewicz function}
 \end{figure}
 
 \begin{figure}[H]
-    \begin{tabular}{|c||c|c|c|} \hline
-        Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-        De Jong's & 0 & 0 & 0.3077 \\ \hline
-        Schwefel's & -2094.693 & 0.4293 & 1.0510 \\ \hline
-        Rastrigin's & 0.9885 & 0.6069 & 0.7460 \\ \hline
-        Michalewicz's & -3.6925 & 0.0081 & 6.4982 \\ \hline
-    \end{tabular}
-    \caption{Simulated Annealing with G cooling applied on 5-dimensional functions}
-    \end{figure}
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & -27.0491 & 0.296 & 128.11 \\ \hline
+		HC WI & -8.1131 & 0.6712 & 0.67 \\ \hline
+		HC FIR & -8.9402 & 0.5629 & 2.7 \\ \hline
+		HC FINR & -25.5630 & 0.3005 & 221.4815 \\ \hline
+		SAGA & -28.1297 & 0.392 & 5.78 \\ \hline
+		SAG & -27.1673 & 0.3446 & 9.3138 \\ \hline
+\end{tabular}
+\caption{All algotithms applied on 30-dimensional Michalewicz function}
+\end{figure}
 
-\subsection{10-dimensional results}
+\subsection{Rastrigin function}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 1 \\ \hline
-	Schwefel's & -4067.7727 & 48.6378 & 4.65 \\ \hline
-	Rastrigin's & 3.8668 & 0.7346 & 1.64 \\ \hline
-	Michalewicz's & -9.3588 & 0.078 & 5.33 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & 0.4975 & 0.5038 & 0.198 \\ \hline
+		HC WI & 1.7925 & 0.6293 & 1.285 \\ \hline
+		HC FIR & 14.1032 & 3.7678 & 0.070 \\ \hline
+		HC FINR & 0.9923 & 0.5286 & 0.1795 \\ \hline
+		SAGA & 1.2143 & 0.6362 & 0.891 \\ \hline
+		SAG & 0.8721 & 0.4933 & 0.2403 \\ \hline
 \end{tabular}
-\caption{Best improvement applied on 10-dimensional functions}
+\caption{All algotithms applied on 5-dimensional Rastrigin function}
 \end{figure}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 11.4351 & 2.9219 & 0.21 \\ \hline
-	Schwefel's & -2684.2246 & 634.6331 & 5.14 \\ \hline
-	Rastrigin's & 65.3611 & 9.3334 & 0.24 \\ \hline
-	Michalewicz's & -4.9379 & 0.3745 & 0.33 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & 3.8668 & 0.7346 & 1.64 \\ \hline
+		HC WI & 7.6206 & 1.3159 & 10.84 \\ \hline
+		HC FIR & 65.3611 & 9.3334 & 0.24 \\ \hline
+		HC FINR & 5.9521 & 1.0533 & 1.0602 \\ \hline
+		SAGA & 5.2009 & 1.5669 & 1.48 \\ \hline
+		SAG & 5.1388 & 1.6275 & 0.3182 \\ \hline
 \end{tabular}
-\caption{Randomized first improvement applied on 10-dimensional functions}
+\caption{All algotithms applied on 10-dimensional Rastrigin function}
 \end{figure}
 
 \begin{figure}[H]
-    \begin{tabular}{|c||c|c|c|} \hline
-        Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-        De Jong's & 0 & 0 & 0.4060 \\ \hline
-        Schwefel's & -3911.4676 & 66.1946 & 2.6621 \\ \hline
-        Rastrigin's & 5.9521 & 1.0533 & 1.0602 \\ \hline
-        Michalewicz's & -8.4160 & 0.0950 & 8.5899 \\ \hline
-    \end{tabular}
-    \caption{Non-randomized first improvement applied on 10-dimensional functions}
-    \end{figure}
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & 28.1095 & 2.6267 & 48.18 \\ \hline
+		HC WI & 45.6166 & 3.6626 & 309.83 \\ \hline
+		HC FIR & 346.8527 & 19.4845 & 1.84 \\ \hline
+		HC FINR & 36.4184 & 2.4564 & 22.2274 \\ \hline
+		SAGA & 25.2189 & 7.1704 & 3.66 \\ \hline
+		SAG & 22.9466 & 7.3625 & 0.6185 \\ \hline
+\end{tabular}
+\caption{All algotithms applied on 30-dimensional Rastrigin function}
+\end{figure}
+
+\subsection{Schwefel function}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 2.01 \\ \hline
-	Schwefel's & -1944.4423 & 186.2629 & 4.96 \\ \hline
-	Rastrigin's & 7.6206 & 1.3159 & 10.84 \\ \hline
-	Michalewicz's & -4.129 & 0.3885 & 0.07 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & -2094.7919 & 0.0871 & 0.545 \\ \hline
+		HC WI & -1394.9864 & 166.1433 & 0.663 \\ \hline
+		HC FIR & -1642.8964 & 101.9519 & 0.120 \\ \hline
+		HC FINR & -2070.35 & 28.9391 & 0.4296 \\ \hline
+		SAGA & -2094.3337 & 1.352 & 1.113 \\ \hline
+		SAG & -2094.6860 & 0.4072 & 0.2928 \\ \hline
 \end{tabular}
-\caption{Worst improvement applied on 10-dimensional functions}
+\caption{All algotithms applied on 5-dimensional Schwefel function}
 \end{figure}
 
 \begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 1.37 \\ \hline
-	Schwefel's & -4169.2265 & 33.2826 & 1.85 \\ \hline
-	Rastrigin's & 5.2009 & 1.5669 & 1.48 \\ \hline
-	Michalewicz's & -9.3482 & 0.1285 & 2.15 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & -4067.7727 & 48.6378 & 4.65 \\ \hline
+		HC WI & -1944.4423 & 186.2629 & 4.96 \\ \hline
+		HC FIR & -2684.2246 & 634.6331 & 5.14 \\ \hline
+		HC FINR & -3911.4676 & 66.1946 & 2.6621 \\ \hline
+		SAGA & -4169.2265 & 33.2826 & 1.85 \\ \hline
+		SAG & -4184.2282 & 12.2314 & 0.4040 \\ \hline
 \end{tabular}
-\caption{Simulated Annealing with GA cooling applied on 10-dimensional functions}
+\caption{All algotithms applied on 10-dimensional Schwefel function}
 \end{figure}
 
 \begin{figure}[H]
-    \begin{tabular}{|c||c|c|c|} \hline
-        Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-        De Jong's & 0 & 0 & 0.4919 \\ \hline
-        Schwefel's & -4174.6057 & 20.669 & 1.8807 \\ \hline
-        Rastrigin's & 5.3156 & 1.7562 & 1.4196 \\ \hline
-        Michalewicz's & -8.4015 & 0.1235 & 13.7620 \\ \hline
-    \end{tabular}
-    \caption{Simulated Annealing with GA cooling applied on 10-dimensional functions}
-    \end{figure}
-
-\subsection{30-dimensional results}
-
-\begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 23.74 \\ \hline
-	Schwefel's & -11409.7169 & 155.4901 & 135.54 \\ \hline
-	Rastrigin's & 28.1095 & 2.6267 & 48.18 \\ \hline
-	Michalewicz's & -27.0491 & 0.296 & 128.11 \\ \hline
+	\begin{tabular}{|c||c|c|c|} \hline
+		Algorithm used & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
+		HC BI & -11409.7169 & 155.4901 & 135.54 \\ \hline
+		HC WI & -3442.8535 & 426.841 & 137.07 \\ \hline
+		HC FIR & -3934.0969 & 341.7946 & 3.41 \\ \hline
+		HC FINR & -10754.7054 & 134.9628 & 60.1260 \\ \hline
+		SAGA & -12242.4767 & 156.8341 & 4.85 \\ \hline
+		SAG & -12360.1771 & 110.2043 & 0.8707 \\ \hline
 \end{tabular}
-\caption{Best improvement applied on 30-dimensional functions}
+\caption{All algotithms applied on 30-dimensional Schwefel function}
 \end{figure}
-
-\begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 114.0378 & 10.1385 & 1.62 \\ \hline
-	Schwefel's & -3934.0969 & 341.7946 & 3.41 \\ \hline
-	Rastrigin's & 346.8527 & 19.4845 & 1.84 \\ \hline
-	Michalewicz's & -8.9402 & 0.5629 & 2.7 \\ \hline
-\end{tabular}
-\caption{Randomized first improvement applied on 30-dimensional functions}
-\end{figure}
-
-\begin{figure}[H]
-    \begin{tabular}{|c||c|c|c|} \hline
-        Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-        De Jong's & 0 & 0 & 6.7262 \\ \hline
-        Schwefel's & -10754.7054 & 134.9628 & 60.1260 \\ \hline
-        Rastrigin's & 36.4184 & 2.4564 & 22.2274 \\ \hline
-        Michalewicz's & -25.5630 & 0.3005 & 221.4815 \\ \hline
-    \end{tabular}
-    \caption{Non-randomized first improvement applied on 30-dimensional functions}
-    \end{figure}
-
-\begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0 & 0 & 47.83 \\ \hline
-	Schwefel's & -3442.8535 & 426.841 & 137.07 \\ \hline
-	Rastrigin's & 45.6166 & 3.6626 & 309.83 \\ \hline
-	Michalewicz's & -8.1131 & 0.6712 & 0.67 \\ \hline
-\end{tabular}
-\caption{Worst improvement applied on 30-dimensional functions}
-\end{figure}
-
-\begin{figure}[H]
-\begin{tabular}{|c||c|c|c|} \hline
-	Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-	De Jong's & 0.0005 & 0 & 3.34 \\ \hline
-	Schwefel's & -12242.4767 & 156.8341 & 4.85 \\ \hline
-	Rastrigin's & 25.2189 & 7.1704 & 3.66 \\ \hline
-	Michalewicz's & -28.1297 & 0.392 & 5.78 \\ \hline
-\end{tabular}
-\caption{Simulated Annealing with GA cooling applied on 30-dimensional functions}
-\end{figure}
-
-\begin{figure}[H]
-    \begin{tabular}{|c||c|c|c|} \hline
-        Function Name & Average f(x) & $\sigma$ of f(x) & Average runtime(s) \\ \hline \hline
-        De Jong's & 0.0001 & 0 & 1.2312 \\ \hline
-        Schwefel's & -12332.6682 & 109.7936 & 5.3479 \\ \hline
-        Rastrigin's & 23.3521 & 4.9273 & 3.6706 \\ \hline
-        Michalewicz's & -27.1150 & 0.3880 & 41.5105 \\ \hline
-    \end{tabular}
-    \caption{Simulated Annealing with G cooling applied on 30-dimensional functions}
-    \end{figure}
 
 \subsection{Interpretation}
 On the 5 and 10 dimensional versions of the results, we may notice that the Best Improvement and the Simulated Annealing methods performed similarly, with Simulated Annealing being slightly slower on the 5-dimensional functions and slightly faster on the 10-dimensional functions. When working with the 30 dimensional functions however, their differences become apparent. Simulated Annealing greatly outperforms the hill climbing algorithm, both in runtime and accuracy. Additionally, both first and worst improvement methods were greatly outclassed by the best improvement algorithm, with only an advantage to runtime for the first improvement method, and worst improvement having no redeeming qualities.
