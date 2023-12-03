@@ -11,7 +11,7 @@ long double Dejong(const point& x) {
 }
 
 long double Schwefel(const point& x) {
-    long double sum = 418.9829 * x.dim;
+    long double sum = 0;
     for (int i = 0; i < x.dim; i++) {
         sum = sum - x.real_form[i] * sin(sqrt(abs(x.real_form[i])));
     }
