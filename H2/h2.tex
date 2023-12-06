@@ -126,9 +126,12 @@ Now we offer each strand an equal chance of being in $child_1$ and $child_2$. By
 \caption{List of parameters used in the Genetic Algorithm for th 30-dimensional version of the functions}
 \end{figure}
 
+In order to get a better understanding of the Genetic Algorithm we decided to improve our current version of it, thus we introduced Gray encoding in our algorithm. A common problem in Genetic Algorithms is that of premature convergence, meaning getting stuck in a local optima and not being able to ascape from it. This is where Gray encoding comes in handy. In order to understand why Gray encoding is helpful we must first understand what a Hamming cliff is. An example of a Hamming cliff is the transition from 7 to 8 in binary coding. Since 7 is interpreted as 0111 and 8 as 1000, the two numbers are at hamming distance 4 from each other even though their real interpretations are really close to each other. That means we would need to mutate 4 genes inside the chromosome in order to visit a neighbouring value which is improbable since we chose the mutation probability such that, on average, one bit of information changes per chromosome. In the Gray code, the Hamming distance is always one for any two strings (chromosomes) that are adjacent (differing by $\varepsilon$) in the real representation of the coordinates. That is not the case in the standard binary code where a single bit flip at the most significant position dramatically changes the value. By incorporating Gray encoding we get rid of the Hamming cliffs in our search space. All we need is to do is to decode the genetic information from Gray to binary in the evaluation part of the algorithm. \\
+Besides Gray encoding, we made two other changes to the code. First, instead of returning the fittest individual from the last generation, we return the fittest individual among all generations. This is done by checking if the fittest individual in each generation is fitter than the one we memorize as the solution. Second, after we compute this point, we apply a steepest ascent Hill Climber algorithm in order to make sure we are in a local minima.
+
 \section{Results}
 
-For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), Hill Climbing (HC), Simulated Annealing with Geometric Arithmetic cooling (SAGA), Simulated Annealing with Geometric cooling (SAG), Best Improvement(BI), Worst Improvement(WI), FIst Improvement (FI) and FIst Improvement Non-randomized (FINR). \\
+For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), Improved Genetic Algorithm (IGA),  Hill Climbing (HC), Simulated Annealing with Geometric Arithmetic cooling (SAGA), Simulated Annealing with Geometric cooling (SAG), Best Improvement(BI), Worst Improvement(WI), FIst Improvement (FI) and FIst Improvement Non-randomized (FINR). \\
 
 \href{./h2.xlsx}{Link to spreadsheet containing all results}
 
@@ -144,6 +147,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & 0 & 0 & 0.826 \\ \hline
 		SAG & 0 & 0 & 0.1543 \\ \hline
         GA & 0 & 0 & 3.5759 \\ \hline
+		IGA & 0 & 0 & 3.5826 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 5-dimensional Dejong function}
 \end{figure}
@@ -158,6 +162,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & 0 & 0 & 1.37 \\ \hline
 		SAG & 0 & 0 & 0.1604 \\ \hline
         GA & 0 & 0 & 5.2156 \\ \hline
+		IGA & 0 & 0 & 5.5231 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 10-dimensional Dejong function}
 \end{figure}
@@ -172,6 +177,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & 0.0005 & 0 & 3.34 \\ \hline
 		SAG & 0.0001 & 0 & 0.2041 \\ \hline
         GA & 0 & 0 & 12.0054 \\ \hline
+		IGA & 0 & 0 & 13.5386 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 30-dimensional Dejong function}
 \end{figure}
@@ -188,6 +194,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & -4.6671 & 0.0178 & 1.248 \\ \hline
 		SAG & -3.6934 & 0.0058 & 1.2351 \\ \hline
         GA & -3.6988 & 0 & 3.9537 \\ \hline
+		IGA & -3.6988 & 0 & 4.1728 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 5-dimensional Michalewicz function}
 \end{figure}
@@ -202,6 +209,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & -9.3482 & 0.1285 & 2.15 \\ \hline
 		SAG & -8.4426 & 0.1092 & 2.4652 \\ \hline
         GA & -8.6252 & 0.0388 & 6.4053 \\ \hline
+		IGA & -8.6271 & 0.0479 & 8.3929 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 10-dimensional Michalewicz function}
 \end{figure}
@@ -216,6 +224,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & -28.1297 & 0.392 & 5.78 \\ \hline
 		SAG & -27.1673 & 0.3446 & 9.3138 \\ \hline
         GA & -28.0786 & 0.1702 & 15.8929 \\ \hline
+		IGA & -28.1342 & 0.1251 & 16.8350 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 30-dimensional Michalewicz function}
 \end{figure}
@@ -232,6 +241,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & 1.2143 & 0.6362 & 0.891 \\ \hline
 		SAG & 0.8721 & 0.4933 & 0.2403 \\ \hline
         GA & 0 & 0 & 3.5276 \\ \hline
+		IGA & 0 & 0 & 3.5316 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 5-dimensional Rastrigin function}
 \end{figure}
@@ -246,6 +256,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & 5.2009 & 1.5669 & 1.48 \\ \hline
 		SAG & 5.1388 & 1.6275 & 0.3182 \\ \hline
         GA & 0.1235 & 0.3707 & 5.4722 \\ \hline
+		IGA & 0 & 0 & 5.5300 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 10-dimensional Rastrigin function}
 \end{figure}
@@ -260,6 +271,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & 25.2189 & 7.1704 & 3.66 \\ \hline
 		SAG & 22.9466 & 7.3625 & 0.6185 \\ \hline
         GA & 6.9480 & 3.9435 & 12.3174 \\ \hline
+		IGA & 0.9956 & 1.3829 & 13.2598 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 30-dimensional Rastrigin function}
 \end{figure}
@@ -276,6 +288,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & -2094.3337 & 1.352 & 1.113 \\ \hline
 		SAG & -2094.6860 & 0.4072 & 0.2928 \\ \hline
         GA & -2094.8242 & 0.0791 & 4.3349 \\ \hline
+		IGA & -2094.9144 & 0 & 4.8101 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 5-dimensional Schwefel function}
 \end{figure}
@@ -290,6 +303,7 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & -4169.2265 & 33.2826 & 1.85 \\ \hline
 		SAG & -4184.2282 & 12.2314 & 0.4040 \\ \hline
         GA & -4189.6098 & 0.1543 & 6.6127 \\ \hline
+		IGA & 4189.8288 & 0 & 7.5114 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 10-dimensional Schwefel function}
 \end{figure}
@@ -304,12 +318,14 @@ For simplicity, we will now establish some abreviations: Genetic Algorithm(GA), 
 		SAGA & -12242.4767 & 156.8341 & 4.85 \\ \hline
 		SAG & -12360.1771 & 110.2043 & 0.8707 \\ \hline
         GA & -12556.4507 & 27.3964 & 16.2548 \\ \hline
+		IGA & -12561.5907 & 29.5437 & 18.1942 \\ \hline
 \end{tabular}
 \caption{All algotithms applied on 30-dimensional Schwefel function}
 \end{figure}
 
 \subsection{Interpretation}
-As can be seen from the 30-dimensional versions of Dejong, Rastrigin and Schwefel, the Genetic Algorithm outperforms Simulated annealing and HillClimbing. Te GA offers a much more stable solution, having a small standard deviation compared to Simulated Annealing. However, this improvement comes at a cost. We can see the average time of the GA is larger than that of the Simulated Annealing. This is due to choosing a higher population size and number of generations, while also keeping the $P_x = 1$, which means that in every generation we add $\frac{population size}{2} \cdot 4$ children to the population, resulting in higher computational demand. Also, on the 30-dimensional version of the Michalewicz function, the GA performed worse than the SA both in results and in computation time. This indicates that either Simulated Annealing is more suitable to find the global minimum for the Michalewicz function, or that there is room for improvement inside the Genetic Algorithm, as it has the potential to surpass the performance of the Simulated Annealing. Judging based off of the other mentioned results, we suspect it is the latter.
+As can be seen from the 30-dimensional versions of Dejong, Rastrigin and Schwefel, the Genetic Algorithm outperforms Simulated annealing and HillClimbing. Te GA offers a much more stable solution, having a small standard deviation compared to Simulated Annealing. However, this improvement comes at a cost. We can see the average time of the GA is larger than that of the Simulated Annealing. This is due to choosing a higher population size and number of generations, while also keeping the $P_x = 1$, which means that in every generation we add $\frac{population size}{2} \cdot 4$ children to the population, resulting in higher computational demand. Also, on the 30-dimensional version of the Michalewicz function, the GA performed worse than the SA both in results and in computation time. This indicates that either Simulated Annealing is more suitable to find the global minimum for the Michalewicz function, or that there is room for improvement inside the Genetic Algorithm, as it has the potential to surpass the performance of the Simulated Annealing. Judging based off of the other mentioned results, we suspect it is the latter.\\
+We can see the Improved Genetic Algorithm is slightly better than the simple Genetic Algorithm at estimating the global minima while the computation time remains relatively close to that of the simple version. The difference is seen best on the 30-dimensional versions of the Rastrigin and Schwefel function, where the algorithm actually found the global minima. This tells us that the removal of the Hamming walls helped a lot in finding the solution to the two functions. We can also conclude that estimating the global minima of the Michalewicz function is a much harder problem than estimating it for the Dejong, Schwefel or Rastrigin functions.
 
 \section{Conclusions}
 As can be seen from the results, the Genetic Algorithm has the potential to outperform both Simulated Annealing and Hill Climbing. However, in order to do so, we must tweak the parameter values and find what methods of select, mutate, crossover and evaluate best fit our problem in order to overcome premature convergence inside the Genetic Algorithm. Nonetheless, we can see the power of the Evolution Strategy compared to Trajectory Methods.
@@ -324,6 +340,9 @@ As can be seen from the results, the Genetic Algorithm has the potential to outp
 
 \bibitem{ES}
 ``Genetic Algorithm (GA): A Simple and Intuitive Guide'', Dana Bani-Hani, 2020, \url{https://blog.otoro.net/2017/10/29/visual-evolution-strategies/}
+
+\bibitem{ES}
+``An analysis of Gray versus binary encoding in genetic search'', Uday K. Chakraborty and Cezary Z. Janikow, Information Sciences, volume 156, number 3, pages 253-269, 2003, \url{https://www.sciencedirect.com/science/article/abs/pii/S0020025503001786#preview-section-cited-by}
 
 \bibitem{HC}
 ``Hill climbing'', Wikipedia, Wikimedia Foundation, 23 March 2023, \url{https://en.wikipedia.org/wiki/Hill\_climbing}
