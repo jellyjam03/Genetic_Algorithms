@@ -1,6 +1,6 @@
-#include "ATT_Graph.h"
+#include "EUC_2D_Graph.h"
 
-long long int ATT_Graph::distance(int i, int j) const {
+long long int EUC_2D_Graph::distance(int i, int j) const {
 	Nod_2D a, b;
 	long long int xd, yd, tDist;
 	long double realDist;
@@ -10,18 +10,18 @@ long long int ATT_Graph::distance(int i, int j) const {
 
 	xd = a.x - b.x;
 	yd = a.y - b.y;
-	realDist = sqrt((xd * xd + yd * yd) / 10.0);
+	realDist = sqrt(xd * xd + yd * yd);
 	tDist = (int)realDist;
-	if (realDist - tDist >= 0.5) 
+	if (realDist - tDist >= 0.5)
 		return tDist + 1;
 	return tDist;
 }
 
-int ATT_Graph::getNrCities() const {
+int EUC_2D_Graph::getNrCities() const {
 	return towns.size();
 }
 
-void ATTReadInput(std::ifstream& fin, ATT_Graph& G) {
+void EUC_2DReadInput(std::ifstream& fin, EUC_2D_Graph& G) {
 	Nod_2D aux;
 	int i;
 
