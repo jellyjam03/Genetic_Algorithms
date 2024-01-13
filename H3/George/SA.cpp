@@ -1,6 +1,6 @@
 #include "SA.h"
 #define SA_ITERATIONS 100
-#define LOW_TEMPERATURE 1
+#define LOW_TEMPERATURE 0.001
 
 long long int SimulatedAnnealing(const Graph* G) {
 	int t = 1, iterations = 0;
@@ -47,5 +47,5 @@ void Improve(const Graph* G, Individual& vc, const long double T) {
 }
 
 void UpdateTemperature(long double& T) {
-	T = T * 0.9995;
+	T = T * 0.999;
 }

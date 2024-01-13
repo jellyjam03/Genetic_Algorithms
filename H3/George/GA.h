@@ -6,7 +6,7 @@
 #include <numeric>
 
 #define POP_SIZE 200
-#define GENETIC_ITERATIONS 2000
+#define GENETIC_ITERATIONS 10
 
 bool fitnessBased(const Individual& a, const Individual& b);
 bool fValBased(const Individual& a, const Individual& b);

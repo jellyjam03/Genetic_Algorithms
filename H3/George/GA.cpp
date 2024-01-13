@@ -43,6 +43,10 @@ long long int geneticAlgorithm(const Graph* G, const long double pm, const long 
 		else
 			reignLen++;
 
+		for (i = 0; i < pop.size(); i++) {
+			cout << "POP[" << i << "]: " << pop[i].fVal << ' ' << &pop[i]<<'\n';
+		}
+
 		/*if (reignLen > 100) 
 			if (generation <= GENETIC_ITERATIONS/2) {
 				reignLen = 0;
@@ -77,16 +81,10 @@ bool fitnessBased(const Individual& a, const Individual& b) {
 
 void mutate(vector<Individual>& pop, const long double pm, const long double pm2) {
 	int i, j;
-	long double mean = 0, p;
-
-	for (i = 0; i < pop.size(); i++)
-		mean += pop[i].fVal;
-	mean /= pop.size();
+	long double p = pm;
 
 	for (i = 0; i < pop.size(); i++) {
-		if (pop[i].fVal <= mean || pop.size() == 2) 
-			p = pm;
-		else
+		if (i > 0.4 * pop.size())
 			p = pm2;
 		for (j = 0; j < pop[i].permutation.size(); j++)
 			if (distribution(mt) <= p)
@@ -194,31 +192,28 @@ void massExtintion(vector<Individual>& pop, const Graph* G, const long double pE
 }
 
 long double fitnessFunction(long long int fVal) {
-	return 1.0 / pow(fVal, 2);
+	return 1.0 / fVal;
 }
 
 void selectWheelOfFortune(vector<Individual>& pop, const long double pElit) {
 	int i, j, nrElit = 0;
-	long double p, totalFitness = 0, sumFitness = 0;
+	long double p, sumFitness = 0;
 	bool found;
 	vector<Individual> newPop;
 
-	for (i = 0; i < pop.size(); i++) {
-		totalFitness += pop[i].fitness;
-	}
 	sort(pop.begin(), pop.end(), fitnessBased);
 
 	//we apply elitism and select the first pElit*pop.size() individuals to live in the next generation
 	nrElit = min((int)(pElit * pop.size()), (int)POP_SIZE);
+
 	for (i = 0; i < nrElit; i++)
 		newPop.push_back(pop[i]);
-	newPop.push_back(pop[pop.size() - 1]); nrElit++;
 
 	for (i = 0, sumFitness = 0; i < POP_SIZE - nrElit; i++) {//we select POP_SIZE individuals for the next generation
 		p = distribution(mt);
 		for (j = 0, sumFitness = 0, found = false; j < pop.size() && !found; j++) {//we search to see who won the wheel
 			sumFitness += pop[i].fitness;
-			if (sumFitness / totalFitness > p) {
+			if (sumFitness > p) {
 				newPop.push_back(pop[j]);
 				found = 1;
 			}
